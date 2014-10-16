@@ -414,9 +414,9 @@
    * array has the specified shape, return 1.  Otherwise, set the python
    * error string and return 0.
    */
-  int require_size(PyArrayObject* ary,
-                   npy_intp*      size,
-                   int            n)
+  int require_shape(PyArrayObject* ary,
+                    npy_intp*      size,
+                    int            n)
   {
     int i;
     int success = 1;
@@ -458,6 +458,29 @@
                    "Array must have shape of %s.  Given array has shape of %s",
                    desired_dims,
                    actual_dims);
+    }
+    return success;
+  }
+
+  /* Require the given PyArrayObject to have a specified size in
+   * dimension i. If the array has the specified size in dimension i,
+   * return 1.  Otherwise, set the python error string and return 0.
+   */
+  int require_size(PyArrayObject* ary,
+                   int            i,
+                   npy_intp       size)
+  {
+    int success = 1;
+    if (size != -1 && size != array_size(ary,i))
+    {
+      success = 0;
+    }
+    if (!success)
+    {
+      PyErr_Format(PyExc_TypeError,
+                   "Array must have size of %ld in dimension %d.  Given array "
+                   "has size %ld in dimension %d.", size, i, array_size(ary,i),
+                   i);
     }
     return success;
   }
@@ -659,7 +682,7 @@
                                                    DATA_TYPECODE,
                                                    &is_new_object);
   if (!array || !require_dimensions(array, 1) ||
-      !require_size(array, size, 1)) SWIG_fail;
+      !require_shape(array, size, 1)) SWIG_fail;
   $1 = ($1_ltype) array_data(array);
 }
 %typemap(freearg)
@@ -687,7 +710,7 @@
                                                    DATA_TYPECODE,
                                                    &is_new_object);
   if (!array || !require_dimensions(array, 1) ||
-      !require_size(array, size, 1)) SWIG_fail;
+      !require_shape(array, size, 1)) SWIG_fail;
   $1 = (DATA_TYPE*) array_data(array);
   $2 = (DIM_TYPE) array_size(array,0);
 }
@@ -716,7 +739,7 @@
                                                    DATA_TYPECODE,
                                                    &is_new_object);
   if (!array || !require_dimensions(array, 1) ||
-      !require_size(array, size, 1)) SWIG_fail;
+      !require_shape(array, size, 1)) SWIG_fail;
   $1 = (DIM_TYPE) array_size(array,0);
   $2 = (DATA_TYPE*) array_data(array);
 }
@@ -745,7 +768,7 @@
                                                    DATA_TYPECODE,
                                                    &is_new_object);
   if (!array || !require_dimensions(array, 2) ||
-      !require_size(array, size, 2)) SWIG_fail;
+      !require_shape(array, size, 2)) SWIG_fail;
   $1 = ($1_ltype) array_data(array);
 }
 %typemap(freearg)
@@ -772,7 +795,7 @@
   array = obj_to_array_contiguous_allow_conversion($input, DATA_TYPECODE,
                                                    &is_new_object);
   if (!array || !require_dimensions(array, 2) ||
-      !require_size(array, size, 2)) SWIG_fail;
+      !require_shape(array, size, 2)) SWIG_fail;
   $1 = (DATA_TYPE*) array_data(array);
   $2 = (DIM_TYPE) array_size(array,0);
   $3 = (DIM_TYPE) array_size(array,1);
@@ -802,7 +825,7 @@
                                                    DATA_TYPECODE,
                                                    &is_new_object);
   if (!array || !require_dimensions(array, 2) ||
-      !require_size(array, size, 2)) SWIG_fail;
+      !require_shape(array, size, 2)) SWIG_fail;
   $1 = (DIM_TYPE) array_size(array,0);
   $2 = (DIM_TYPE) array_size(array,1);
   $3 = (DATA_TYPE*) array_data(array);
@@ -832,7 +855,7 @@
                                                 DATA_TYPECODE,
                                                 &is_new_object);
   if (!array || !require_dimensions(array, 2) ||
-      !require_size(array, size, 2) || !require_fortran(array)) SWIG_fail;
+      !require_shape(array, size, 2) || !require_fortran(array)) SWIG_fail;
   $1 = (DATA_TYPE*) array_data(array);
   $2 = (DIM_TYPE) array_size(array,0);
   $3 = (DIM_TYPE) array_size(array,1);
@@ -862,7 +885,7 @@
                                                    DATA_TYPECODE,
                                                    &is_new_object);
   if (!array || !require_dimensions(array, 2) ||
-      !require_size(array, size, 2) || !require_fortran(array)) SWIG_fail;
+      !require_shape(array, size, 2) || !require_fortran(array)) SWIG_fail;
   $1 = (DIM_TYPE) array_size(array,0);
   $2 = (DIM_TYPE) array_size(array,1);
   $3 = (DATA_TYPE*) array_data(array);
@@ -892,7 +915,7 @@
                                                    DATA_TYPECODE,
                                                    &is_new_object);
   if (!array || !require_dimensions(array, 3) ||
-      !require_size(array, size, 3)) SWIG_fail;
+      !require_shape(array, size, 3)) SWIG_fail;
   $1 = ($1_ltype) array_data(array);
 }
 %typemap(freearg)
@@ -920,7 +943,7 @@
   array = obj_to_array_contiguous_allow_conversion($input, DATA_TYPECODE,
                                                    &is_new_object);
   if (!array || !require_dimensions(array, 3) ||
-      !require_size(array, size, 3)) SWIG_fail;
+      !require_shape(array, size, 3)) SWIG_fail;
   $1 = (DATA_TYPE*) array_data(array);
   $2 = (DIM_TYPE) array_size(array,0);
   $3 = (DIM_TYPE) array_size(array,1);
@@ -951,7 +974,7 @@
   array = obj_to_array_contiguous_allow_conversion($input, DATA_TYPECODE,
                                                    &is_new_object);
   if (!array || !require_dimensions(array, 3) ||
-      !require_size(array, size, 3)) SWIG_fail;
+      !require_shape(array, size, 3)) SWIG_fail;
   $1 = (DIM_TYPE) array_size(array,0);
   $2 = (DIM_TYPE) array_size(array,1);
   $3 = (DIM_TYPE) array_size(array,2);
@@ -982,7 +1005,7 @@
   array = obj_to_array_fortran_allow_conversion($input, DATA_TYPECODE,
                                                 &is_new_object);
   if (!array || !require_dimensions(array, 3) ||
-      !require_size(array, size, 3) | !require_fortran(array)) SWIG_fail;
+      !require_shape(array, size, 3) | !require_fortran(array)) SWIG_fail;
   $1 = (DATA_TYPE*) array_data(array);
   $2 = (DIM_TYPE) array_size(array,0);
   $3 = (DIM_TYPE) array_size(array,1);
@@ -1014,7 +1037,7 @@
                                                    DATA_TYPECODE,
                                                    &is_new_object);
   if (!array || !require_dimensions(array, 3) ||
-      !require_size(array, size, 3) || !require_fortran(array)) SWIG_fail;
+      !require_shape(array, size, 3) || !require_fortran(array)) SWIG_fail;
   $1 = (DIM_TYPE) array_size(array,0);
   $2 = (DIM_TYPE) array_size(array,1);
   $3 = (DIM_TYPE) array_size(array,2);
@@ -1044,7 +1067,7 @@
   array = obj_to_array_contiguous_allow_conversion($input, DATA_TYPECODE,
                                                    &is_new_object);
   if (!array || !require_dimensions(array, 4) ||
-      !require_size(array, size, 4)) SWIG_fail;
+      !require_shape(array, size, 4)) SWIG_fail;
   $1 = ($1_ltype) array_data(array);
 }
 %typemap(freearg)
@@ -1072,7 +1095,7 @@
   array = obj_to_array_contiguous_allow_conversion($input, DATA_TYPECODE,
                                                    &is_new_object);
   if (!array || !require_dimensions(array, 4) ||
-      !require_size(array, size, 4)) SWIG_fail;
+      !require_shape(array, size, 4)) SWIG_fail;
   $1 = (DATA_TYPE*) array_data(array);
   $2 = (DIM_TYPE) array_size(array,0);
   $3 = (DIM_TYPE) array_size(array,1);
@@ -1104,7 +1127,7 @@
   array = obj_to_array_contiguous_allow_conversion($input, DATA_TYPECODE,
                                                    &is_new_object);
   if (!array || !require_dimensions(array, 4) ||
-      !require_size(array, size, 4)) SWIG_fail;
+      !require_shape(array, size, 4)) SWIG_fail;
   $1 = (DIM_TYPE) array_size(array,0);
   $2 = (DIM_TYPE) array_size(array,1);
   $3 = (DIM_TYPE) array_size(array,2);
@@ -1136,7 +1159,7 @@
   array = obj_to_array_fortran_allow_conversion($input, DATA_TYPECODE,
                                                 &is_new_object);
   if (!array || !require_dimensions(array, 4) ||
-      !require_size(array, size, 4) | !require_fortran(array)) SWIG_fail;
+      !require_shape(array, size, 4) | !require_fortran(array)) SWIG_fail;
   $1 = (DATA_TYPE*) array_data(array);
   $2 = (DIM_TYPE) array_size(array,0);
   $3 = (DIM_TYPE) array_size(array,1);
@@ -1168,7 +1191,7 @@
   array = obj_to_array_contiguous_allow_conversion($input, DATA_TYPECODE,
                                                    &is_new_object);
   if (!array || !require_dimensions(array, 4) ||
-      !require_size(array, size, 4) || !require_fortran(array)) SWIG_fail;
+      !require_shape(array, size, 4) || !require_fortran(array)) SWIG_fail;
   $1 = (DIM_TYPE) array_size(array,0);
   $2 = (DIM_TYPE) array_size(array,1);
   $3 = (DIM_TYPE) array_size(array,2);
@@ -1202,7 +1225,7 @@
 {
   npy_intp size[1] = { $1_dim0 };
   array = obj_to_array_no_conversion($input, DATA_TYPECODE);
-  if (!array || !require_dimensions(array,1) || !require_size(array, size, 1) ||
+  if (!array || !require_dimensions(array,1) || !require_shape(array, size, 1) ||
       !require_contiguous(array) || !require_native(array)) SWIG_fail;
   $1 = ($1_ltype) array_data(array);
 }
@@ -1267,7 +1290,7 @@
 {
   npy_intp size[2] = { $1_dim0, $1_dim1 };
   array = obj_to_array_no_conversion($input, DATA_TYPECODE);
-  if (!array || !require_dimensions(array,2) || !require_size(array, size, 2) ||
+  if (!array || !require_dimensions(array,2) || !require_shape(array, size, 2) ||
       !require_contiguous(array) || !require_native(array)) SWIG_fail;
   $1 = ($1_ltype) array_data(array);
 }
@@ -1376,7 +1399,7 @@
 {
   npy_intp size[3] = { $1_dim0, $1_dim1, $1_dim2 };
   array = obj_to_array_no_conversion($input, DATA_TYPECODE);
-  if (!array || !require_dimensions(array,3) || !require_size(array, size, 3) ||
+  if (!array || !require_dimensions(array,3) || !require_shape(array, size, 3) ||
       !require_contiguous(array) || !require_native(array)) SWIG_fail;
   $1 = ($1_ltype) array_data(array);
 }
@@ -1493,7 +1516,7 @@
 {
   npy_intp size[4] = { $1_dim0, $1_dim1, $1_dim2 , $1_dim3 };
   array = obj_to_array_no_conversion($input, DATA_TYPECODE);
-  if (!array || !require_dimensions(array,4) || !require_size(array, size, 4) ||
+  if (!array || !require_dimensions(array,4) || !require_shape(array, size, 4) ||
       !require_contiguous(array) || !require_native(array)) SWIG_fail;
   $1 = ($1_ltype) array_data(array);
 }
